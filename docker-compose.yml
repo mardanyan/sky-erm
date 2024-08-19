@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+    db:
+        image: postgres:16.4
+        network_mode: bridge
+        container_name: db
+#        volumes:
+#            - postgres-data:/var/lib/postgresql/data
+        expose:
+            - 5432
+        ports:
+            - 5432:5432
+        environment:
+            - POSTGRES_DB=sky-erm-db
+            - POSTGRES_USER=postgres
+#           should be secrets
+            - POSTGRES_PASSWORD=mysecretpassword
+        restart: unless-stopped
+    app:
+        image: 'sky-erm-app:latest'
+        network_mode: bridge
+        container_name: sky-erm
+        volumes:
+            - ${PWD}/log:/log
+        environment:
+            - db_database=sky-erm-db
+            - db_user=postgres
+#           should be secrets
+            - db_password=mysecretpassword
+            - jwt_secret=o4OdCNjd8mmDN2+/nfHdIB2ZWta80foXqDx2rouL4nw=
+        expose:
+            - 8080
+        ports:
+            - 8080:8080
+        restart: unless-stopped
+        depends_on:
+            - db
+        links:
+            - db

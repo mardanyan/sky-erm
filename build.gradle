@@ -1,0 +1,45 @@
+plugins {
+    id 'org.springframework.boot' version '3.3.2'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'java'
+    id 'maven-publish'
+}
+
+dependencies {
+    implementation project(':dto')
+    implementation project(path: ':service')
+    implementation project(path: ':database')
+    implementation project(path: ':auth')
+}
+
+apply from: 'version.gradle'
+def projectVersion = loadVersion().getVersion()
+
+allprojects {
+    group 'com.sky.erm'
+    version = projectVersion
+    project.version = projectVersion
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+}
+
+subprojects {
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
+
+bootJar {
+    archiveFileName = rootProject.name + '-' + version + '-SNAPSHOT.jar'
+    mainClass = 'com.sky.erm.SkyErmApplication'
+}
+jar.enabled=false

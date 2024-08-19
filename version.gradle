@@ -1,0 +1,53 @@
+class ApplicationVersion {
+    Integer major
+    Integer minor
+    Integer patch
+    Boolean release
+
+    ApplicationVersion(Integer major, Integer minor, Integer patch, Boolean release) {
+        this.major = major
+        this.minor = minor
+        this.patch = patch
+        this.release = release
+    }
+
+    private String getRelease() {
+        return this.release ? '' : '-SNAPSHOT'
+    }
+
+    String getVersion() {
+        return "$major.$minor.$patch" + this.getRelease()
+    }
+
+    String getVersionForProject_backup() {
+        def currentDate = new Date()
+        def formattedDate = currentDate.format('yyyyMMddHHmmss')
+        return "$formattedDate.$minor"
+    }
+
+    static String getVersionForProject() {
+        def currentDate = new Date()
+        def formattedDate = currentDate.format('yyyyMMdd.HHmm.ss')
+        return "$formattedDate"
+    }
+}
+
+ext.loadVersion = { ->
+
+    def versionPropertiesFile = file('version.properties')
+
+    if(!versionPropertiesFile.exists()) {
+        throw new Exception('No version.properties file found')
+    }
+
+    Properties versionProperties = new Properties()
+
+    versionPropertiesFile.withInputStream { stream ->
+        versionProperties.load(stream)
+    }
+    return new ApplicationVersion(versionProperties.major.toInteger(),
+            versionProperties.minor.toInteger(),
+            versionProperties.patch.toInteger(),
+            versionProperties.release.toBoolean())
+
+}
