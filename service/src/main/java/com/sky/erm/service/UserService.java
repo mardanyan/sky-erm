@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -62,12 +63,18 @@ public class UserService {
     }
 
     public User getUser(Long userId) {
-        User user = userDtoMapper.fromRecord(getUserById(userId));
+        User user = userDtoMapper.fromRecord(findUserById(userId));
         return new PasswordProtectedUser(user);
     }
 
+    public User getUserByEmail(String userEmail) {
+        User user = userDtoMapper.fromRecord(findUserByEmail(userEmail));
+        return new PasswordProtectedUser(user);
+    }
+
+    @Transactional
     public User updateUser(Long userId, User user) {
-        UserRecord existingUserRecord = getUserById(userId);
+        UserRecord existingUserRecord = findWithLockUserById(userId);
         UserRecord incompleteUserRecord = userDtoMapper.toRecord(user);
 
         updatePasswordEncoded(incompleteUserRecord);
@@ -89,8 +96,16 @@ public class UserService {
                 .toList();
     }
 
-    private UserRecord getUserById(Long id) {
+    private UserRecord findUserById(Long id) {
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+    }
+
+    private UserRecord findUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+    }
+
+    private UserRecord findWithLockUserById(Long id) {
+        return userRepository.findWithLockById(id).orElseThrow(UserNotFoundException::new);
     }
 
     private void preventSelfDeletion(String userEmail) {

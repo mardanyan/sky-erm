@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,6 +47,7 @@ public class UserController {
 
     @Operation(summary = "Patch a user")
     @PatchMapping("{id}")
+    @Transactional
     public User update(@RequestBody User user, @PathVariable("id") Long id) {
         log.info("Updating user with id: {}", id);
         return userService.updateUser(id, user);

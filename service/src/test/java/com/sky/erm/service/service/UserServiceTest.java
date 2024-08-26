@@ -9,15 +9,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -36,6 +45,13 @@ class UserServiceTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+    private TransactionTemplate transactionTemplate;
+
+    @SpyBean
+    PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() {
@@ -92,6 +108,43 @@ class UserServiceTest {
         assertThat(updatedUser.getId()).isEqualTo(user.getId());
         assertThat(updatedUser.getEmail()).isEqualTo("email2");
         assertThat(updatedUser.getName()).isEqualTo("name2");
+    }
+
+    @Test
+    void updateAndDeleteUserParallel_userDeleted() {
+        transactionTemplate = new TransactionTemplate(transactionManager);
+        User user = userService.addUser(User.builder().email("email").name("name").password("password").build());
+
+        CountDownLatch latchDeleteWait = new CountDownLatch(1);
+
+        doAnswer(invocation -> {
+            latchDeleteWait.countDown();
+            return invocation.callRealMethod();
+        }).when(passwordEncoder).encode(anyString());
+
+        // update user in one transaction
+        final CompletableFuture<Void> updateTx = CompletableFuture.runAsync(() -> transactionTemplate.execute(status -> {
+            userService.updateUser(user.getId(), User.builder().id(user.getId()).name("name2").password("password2").build());
+            return null;
+        }));
+
+        // delete user in another transaction
+        final CompletableFuture<Void> deleteTx = CompletableFuture.runAsync(() -> {
+            awaitLatch(latchDeleteWait);
+            userService.deleteUser(user.getId());
+        });
+
+        CompletableFuture.allOf(updateTx, deleteTx).join();
+
+        assertThat(userService.getUsers()).isEmpty();
+    }
+
+    private static void awaitLatch(CountDownLatch latch) {
+        try {
+            latch.await(20, TimeUnit.SECONDS);
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
     }
 
 }
