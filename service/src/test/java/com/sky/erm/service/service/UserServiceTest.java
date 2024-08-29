@@ -74,7 +74,7 @@ class UserServiceTest {
 
         userService.deleteUser(user.getId());
 
-        List<? extends User> allUsers = userService.getUsers();
+        List<User> allUsers = userService.getUsers();
         assertThat(allUsers).isEmpty();
     }
 

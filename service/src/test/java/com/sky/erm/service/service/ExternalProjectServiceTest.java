@@ -77,7 +77,7 @@ public class ExternalProjectServiceTest {
     void deleteExternalProjects_removesExternalProjects() {
         ExternalProject externalProject = externalProjectService.addExternalProject(ExternalProject.builder().userId(user1.getId()).name("project1").build());
 
-        externalProjectService.deleteExternalProjects(externalProject.getId());
+        externalProjectService.deleteExternalProject(externalProject.getId());
 
         assertThat(externalProjectService.getAllExternalProjects()).isEmpty();
     }

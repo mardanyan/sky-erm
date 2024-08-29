@@ -7,9 +7,7 @@ import com.sky.erm.dto.ExternalProject;
 import com.sky.erm.exception.ExternalProjectNotFoundException;
 import com.sky.erm.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -29,7 +27,7 @@ public class ExternalProjectService {
 
     public ExternalProject getExternalProject(Long id) {
         ExternalProjectRecord externalProjectRecord = externalProjectRepository.findById(id)
-                .orElseThrow(ExternalProjectNotFoundException::new);
+                .orElseThrow(() -> new ExternalProjectNotFoundException(id));
 
         return externalProjectDtoMapper.fromRecord(externalProjectRecord);
     }
@@ -40,11 +38,9 @@ public class ExternalProjectService {
         return externalProjectDtoMapper.fromRecord(savedExternalProjectRecord);
     }
 
-    public void deleteExternalProjects(Long id) {
+    public void deleteExternalProject(Long id) {
         if (!externalProjectRepository.existsById(id)) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "entity not found"
-            );
+            throw new ExternalProjectNotFoundException(id);
         }
         externalProjectRepository.deleteById(id);
     }
@@ -57,7 +53,7 @@ public class ExternalProjectService {
 
     public List<ExternalProject> getExternalProjectsForUserId(Long userId) {
         if (userService.getUser(userId) == null) {
-            throw new UserNotFoundException();
+            throw new UserNotFoundException(userId);
         }
         return externalProjectRepository.findByUserId(userId).stream()
                 .map(externalProjectDtoMapper::fromRecord)

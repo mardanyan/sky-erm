@@ -5,8 +5,8 @@ package com.sky.erm.exception;
  */
 public class ExternalProjectNotFoundException extends RuntimeException {
 
-    public ExternalProjectNotFoundException() {
-        super("External Project not found");
+    public ExternalProjectNotFoundException(Long id) {
+        super("External Project not found with id: " + id);
     }
 
 }

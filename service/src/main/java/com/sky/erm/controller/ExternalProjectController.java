@@ -44,9 +44,9 @@ public class ExternalProjectController {
     @Operation(summary = "Delete an external project by external project id")
     @DeleteMapping("{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteExternalProjects(@PathVariable Long id) {
+    public void deleteExternalProject(@PathVariable Long id) {
         log.info("Deleting external project with id: {}", id);
-        externalProjectService.deleteExternalProjects(id);
+        externalProjectService.deleteExternalProject(id);
     }
 
     @Operation(summary = "Get all external projects")

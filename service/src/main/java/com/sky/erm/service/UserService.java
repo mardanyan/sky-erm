@@ -49,7 +49,7 @@ public class UserService {
      */
     public void deleteUser(Long userId) {
         UserRecord userRecord = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         preventSelfDeletion(userRecord.getEmail());
         userRepository.deleteById(userId);
@@ -68,9 +68,7 @@ public class UserService {
     @Transactional
     public User updateUser(Long userId, User user) {
         UserRecord userRecord = findWithLockUserById(userId);
-
         updatePasswordEncoded(user);
-
         userDtoMapper.update(user, userRecord);
 
         UserRecord updatedUserRecord = userRepository.save(userRecord);
@@ -78,23 +76,23 @@ public class UserService {
     }
 
     // TODO: add pagination
-    public List<? extends User> getUsers() {
+    public List<User> getUsers() {
         return StreamSupport.stream(userRepository.findAll().spliterator(), false)
                 .map(userDtoMapper::fromRecord)
-                .map(PasswordProtectedUser::new)
+                .map((user) -> (User) new PasswordProtectedUser(user))
                 .toList();
     }
 
     private UserRecord findUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
     private UserRecord findUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        return userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
     }
 
     private UserRecord findWithLockUserById(Long id) {
-        return userRepository.findWithLockById(id).orElseThrow(UserNotFoundException::new);
+        return userRepository.findWithLockById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
     private void preventSelfDeletion(String userEmail) {

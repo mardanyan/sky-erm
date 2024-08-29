@@ -55,7 +55,7 @@ public class UserController {
 
     @Operation(summary = "Get all users")
     @GetMapping
-    public List<? extends User> getAllUsers() {
+    public List<User> getAllUsers() {
         log.info("Getting all users");
         return userService.getUsers();
     }
