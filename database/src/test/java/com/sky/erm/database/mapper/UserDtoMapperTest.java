@@ -49,4 +49,27 @@ class UserDtoMapperTest {
         assertThat(user.getName()).isEqualTo("name");
     }
 
+    @Test
+    void user_updateUserRecord_returnsCorrectValues() {
+        UserRecord userRecord = UserRecord.builder()
+                .id(1L)
+                .email("email")
+                .password("password")
+                .name("name")
+                .build();
+        User user = User.builder()
+                .id(2L)
+                .email("email2")
+                .password("password2")
+                .name("name2")
+                .build();
+
+        userDtoMapper.update(user, userRecord);
+
+        assertThat(userRecord.getId()).isOne();
+        assertThat(userRecord.getEmail()).isEqualTo("email2");
+        assertThat(userRecord.getPassword()).isEqualTo("password2");
+        assertThat(userRecord.getName()).isEqualTo("name2");
+    }
+
 }

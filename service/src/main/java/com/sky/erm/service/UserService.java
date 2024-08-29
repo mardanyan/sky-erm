@@ -1,6 +1,5 @@
 package com.sky.erm.service;
 
-import com.sky.erm.util.UserRecordPatcher;
 import com.sky.erm.database.mapper.UserDtoMapper;
 import com.sky.erm.database.record.UserRecord;
 import com.sky.erm.database.repository.UserRepository;
@@ -30,8 +29,6 @@ public class UserService {
     private final UserDtoMapper userDtoMapper;
 
     private final PasswordEncoder passwordEncoder;
-
-    private final UserRecordPatcher userRecordPatcher = new UserRecordPatcher();
 
     public User addUser(User user) {
         UserRecord userRecord = userDtoMapper.toRecord(user);
@@ -74,17 +71,13 @@ public class UserService {
 
     @Transactional
     public User updateUser(Long userId, User user) {
-        UserRecord existingUserRecord = findWithLockUserById(userId);
-        UserRecord incompleteUserRecord = userDtoMapper.toRecord(user);
+        UserRecord userRecord = findWithLockUserById(userId);
 
-        updatePasswordEncoded(incompleteUserRecord);
+        updatePasswordEncoded(user);
 
-        try {
-            userRecordPatcher.patch(existingUserRecord, incompleteUserRecord);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-        UserRecord updatedUserRecord = userRepository.save(existingUserRecord);
+        userDtoMapper.update(user, userRecord);
+
+        UserRecord updatedUserRecord = userRepository.save(userRecord);
         return new PasswordProtectedUser(userDtoMapper.fromRecord(updatedUserRecord));
     }
 
@@ -116,6 +109,13 @@ public class UserService {
         String plainPassword = userRecord.getPassword();
         if (plainPassword != null) {
             userRecord.setPassword(passwordEncoder.encode(plainPassword));
+        }
+    }
+
+    private void updatePasswordEncoded(User user) {
+        String plainPassword = user.getPassword();
+        if (plainPassword != null) {
+            user.setPassword(passwordEncoder.encode(plainPassword));
         }
     }
 
