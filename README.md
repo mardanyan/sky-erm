@@ -7,14 +7,17 @@ This is a ERM project demonstrating the use of Spring Boot, Spring Data JPA, Spr
 - [Requirements](#requirements)
 - [Project specifications](#project-specifications)
 - [Postgres setup](#postgres-setup)
+- [Building the application](#building-the-application)
+- [Building the docker image](#building-the-docker-image)
+- [Running the application](#running-the-application)
+- [Swagger](#swagger)
+- [Setup Dev Env](#setup-dev-env)
   * [Create database](#create-database)
   * [Verify the database is created](#verify-the-database-is-created)
   * [Stop the postgres container](#stop-the-postgres-container)
-- [Building the application](#building-the-application)
-- [Building the docker image](#building-the-docker-image)
-- [Swagger](#swagger)
 
 ## Requirements
+
 - Docker
 - Java 17
 - Postgres 16.4
@@ -30,26 +33,51 @@ The project consist of following modules
 
 Authentication is done using JWT.
 
-As a database it's using Postgres.
-The application is containerized using docker-compose.
+Postgres is used as the database. The application is containerized using docker-compose.
 Project secrets are stored in `docker-compose.yml` file.
 
 ## Postgres setup
 
 Download the postgres image from docker hub
+
 ```
 docker pull postgres:16.4
 ```
 
-Before running the postgres container read the following instructions
+## Building the application
 
-- Replace `mysecretpassword` with your desired password
-- Note: Password should be the same as the one in the application.properties file
-- Follow instruction https://hub.docker.com/_/postgres to create a volume to persist data
-- Warn: Store the password in a secure place and use file path in the command to access it
+```
+./gradlew clean build
+```
+
+## Building the docker image
+
+```
+docker build -t sky-erm-app .
+```
+
+## Running the application
+
+```
+docker-compose up
+```
+
+## Swagger
+
+Swagger is enabled in the application. To access the swagger UI, navigate to the following URL
+```
+http://localhost:8080/swagger-ui/index.html
+```
+
+## Setup Dev Env
+
+Run postgres docker local
+ 
 ```
 docker run --name sky-erm-postgres -e POSTGRES_PASSWORD=mysecretpassword -d -p 5432:5432 postgres:16.4
 ```
+
+Note: Replace `mysecretpassword` with your desired password. Update password in application.properties file
 
 ### Create database
 
@@ -65,7 +93,7 @@ psql -h localhost -U postgres
 ```
 Create a database with name sky-erm-db
 ```
-CREATE DATABASE 'sky-erm-db';
+CREATE DATABASE "sky-erm-db";
 ```
 
 ### Verify the database is created
@@ -91,33 +119,16 @@ root@58a43aa378de:/# exit
 exit
 ```
 
-### Stop the postgres container
+### Check running containers
 
-We are going to use docker-compose to run the application. So, stop the postgres container
+To check the running containers run
+```
+docker ps | grep sky-erm*
+```
+
+
+
+Note: We are going to use docker-compose to run the application. So, stop the postgres container
 ```
 docker stop sky-erm-postgres
-```
-
-## Building the application
-
-```
-./gradlew clean build
-```
-
-## Building the docker image
-
-```
-docker build -t sky-erm-app .
-```
-
-## Running the application
-
-```
-docker-compose up
-```
-
-## Swagger
-Swagger is enabled in the application. To access the swagger UI, navigate to the following URL
-```
-http://localhost:8080/swagger-ui/index.html
 ```
