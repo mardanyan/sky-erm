@@ -46,7 +46,7 @@ public class ExternalProjectService {
                     HttpStatus.NOT_FOUND, "entity not found"
             );
         }
-            externalProjectRepository.deleteById(id);
+        externalProjectRepository.deleteById(id);
     }
 
     public List<ExternalProject> getAllExternalProjects() {

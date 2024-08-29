@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 /**
@@ -47,16 +46,13 @@ public class UserService {
      * All projects related to a user will be deleted automatically
      *
      * @param userId the user id
-     * @return true if the user exists and is deleted, false otherwise
      */
-    public boolean deleteUser(Long userId) {
-        Optional<UserRecord> userRecord = userRepository.findById(userId);
-        if (userRecord.isEmpty()) {
-            return false;
-        }
-        preventSelfDeletion(userRecord.get().getEmail());
+    public void deleteUser(Long userId) {
+        UserRecord userRecord = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        preventSelfDeletion(userRecord.getEmail());
         userRepository.deleteById(userId);
-        return true;
     }
 
     public User getUser(Long userId) {

@@ -72,9 +72,8 @@ class UserServiceTest {
     void deleteUser_removesUserAndReturnsTrue() {
         User user = userService.addUser(User.builder().email("email").name("name").password("password").build());
 
-        boolean deleted = userService.deleteUser(user.getId());
+        userService.deleteUser(user.getId());
 
-        assertThat(deleted).isTrue();
         List<? extends User> allUsers = userService.getUsers();
         assertThat(allUsers).isEmpty();
     }
