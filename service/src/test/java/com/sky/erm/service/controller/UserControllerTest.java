@@ -3,7 +3,6 @@ package com.sky.erm.service.controller;
 import com.sky.erm.controller.UserController;
 import com.sky.erm.database.repository.UserRepository;
 import com.sky.erm.dto.User;
-import com.sky.erm.dto.PasswordProtectedUser;
 import com.sky.erm.model.LoginResponse;
 import com.sky.erm.service.AuthenticationService;
 import com.sky.erm.service.UserService;
@@ -113,7 +112,7 @@ public class UserControllerTest extends BaseAuthControllerTest {
                 .isNotNull()
                 .returns(userId, User::getId)
                 .returns(USER_EMAIL, User::getEmail)
-                .returns(PasswordProtectedUser.PASSWORD, User::getPassword);
+                .returns(User.NO_PASSWORD, User::getPassword);
     }
 
     @Test

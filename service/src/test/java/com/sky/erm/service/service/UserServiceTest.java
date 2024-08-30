@@ -2,7 +2,6 @@ package com.sky.erm.service.service;
 
 import com.sky.erm.database.repository.UserRepository;
 import com.sky.erm.dto.User;
-import com.sky.erm.dto.PasswordProtectedUser;
 import com.sky.erm.service.UserService;
 import com.sky.erm.service.config.TestConfig;
 import org.junit.jupiter.api.BeforeEach;
@@ -94,7 +93,7 @@ class UserServiceTest {
 
         User foundUser = userService.getUser(user.getId());
 
-        assertThat(foundUser).extracting(User::getPassword).isEqualTo(PasswordProtectedUser.PASSWORD);
+        assertThat(foundUser).extracting(User::getPassword).isEqualTo(User.NO_PASSWORD);
     }
 
     @Test

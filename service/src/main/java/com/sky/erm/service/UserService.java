@@ -4,7 +4,6 @@ import com.sky.erm.database.mapper.UserDtoMapper;
 import com.sky.erm.database.record.UserRecord;
 import com.sky.erm.database.repository.UserRepository;
 import com.sky.erm.dto.User;
-import com.sky.erm.dto.PasswordProtectedUser;
 import com.sky.erm.exception.UserAlreadyExistsException;
 import com.sky.erm.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
@@ -39,7 +38,8 @@ public class UserService {
             throw new UserAlreadyExistsException(user.getEmail(), e);
         }
         User savedUser = userDtoMapper.fromRecord(savedUserRecord);
-        return new PasswordProtectedUser(savedUser);
+        savedUser.updateNoPassword();
+        return savedUser;
     }
 
     /**
@@ -57,12 +57,14 @@ public class UserService {
 
     public User getUser(Long userId) {
         User user = userDtoMapper.fromRecord(findUserById(userId));
-        return new PasswordProtectedUser(user);
+        user.updateNoPassword();
+        return user;
     }
 
     public User getUserByEmail(String userEmail) {
         User user = userDtoMapper.fromRecord(findUserByEmail(userEmail));
-        return new PasswordProtectedUser(user);
+        user.updateNoPassword();
+        return user;
     }
 
     @Transactional
@@ -72,14 +74,16 @@ public class UserService {
         userDtoMapper.update(user, userRecord);
 
         UserRecord updatedUserRecord = userRepository.save(userRecord);
-        return new PasswordProtectedUser(userDtoMapper.fromRecord(updatedUserRecord));
+        User updateUser = userDtoMapper.fromRecord(updatedUserRecord);
+        updateUser.updateNoPassword();
+        return updateUser;
     }
 
     // TODO: add pagination
     public List<User> getUsers() {
         return StreamSupport.stream(userRepository.findAll().spliterator(), false)
                 .map(userDtoMapper::fromRecord)
-                .map((user) -> (User) new PasswordProtectedUser(user))
+                .peek(User::updateNoPassword)
                 .toList();
     }
 

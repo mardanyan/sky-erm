@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class User {
 
+    public static final String NO_PASSWORD = "********";
+
     protected Long id;
 
     protected String email;
@@ -21,5 +23,12 @@ public class User {
     protected String password;
 
     protected String name;
+
+    /**
+     * Set password to {@link #NO_PASSWORD} to avoid exposing real password.
+     */
+    public void updateNoPassword() {
+        password = NO_PASSWORD;
+    }
 
 }

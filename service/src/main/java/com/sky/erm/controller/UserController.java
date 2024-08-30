@@ -1,7 +1,6 @@
 package com.sky.erm.controller;
 
 import com.sky.erm.dto.User;
-import com.sky.erm.dto.PasswordProtectedUser;
 import com.sky.erm.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
@@ -28,11 +27,12 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public User addUser(@RequestBody User user) {
         log.info("Adding user: {}", user);
-        return Optional.of(userService.addUser(user)).map(PasswordProtectedUser::new).get();
+        return Optional.of(userService.addUser(user)).get();
     }
 
     @Operation(summary = "Delete a user")
     @DeleteMapping("{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Long id) {
         log.info("Deleting user with id: {}", id);
         userService.deleteUser(id);
@@ -42,7 +42,7 @@ public class UserController {
     @GetMapping("{id}")
     public User getUser(@PathVariable Long id) {
         log.info("Getting user with id: {}", id);
-        return Optional.of(userService.getUser(id)).map(PasswordProtectedUser::new).get();
+        return Optional.of(userService.getUser(id)).get();
     }
 
     @Operation(summary = "Patch a user")
