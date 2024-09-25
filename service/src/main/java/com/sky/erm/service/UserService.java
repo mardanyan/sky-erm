@@ -38,7 +38,7 @@ public class UserService {
             throw new UserAlreadyExistsException(user.getEmail(), e);
         }
         User savedUser = userDtoMapper.fromRecord(savedUserRecord);
-        savedUser.updateNoPassword();
+        savedUser.setNoPassword();
         return savedUser;
     }
 
@@ -57,13 +57,13 @@ public class UserService {
 
     public User getUser(Long userId) {
         User user = userDtoMapper.fromRecord(findUserById(userId));
-        user.updateNoPassword();
+        user.setNoPassword();
         return user;
     }
 
     public User getUserByEmail(String userEmail) {
         User user = userDtoMapper.fromRecord(findUserByEmail(userEmail));
-        user.updateNoPassword();
+        user.setNoPassword();
         return user;
     }
 
@@ -75,7 +75,7 @@ public class UserService {
 
         UserRecord updatedUserRecord = userRepository.save(userRecord);
         User updateUser = userDtoMapper.fromRecord(updatedUserRecord);
-        updateUser.updateNoPassword();
+        updateUser.setNoPassword();
         return updateUser;
     }
 
@@ -83,7 +83,7 @@ public class UserService {
     public List<User> getUsers() {
         return StreamSupport.stream(userRepository.findAll().spliterator(), false)
                 .map(userDtoMapper::fromRecord)
-                .peek(User::updateNoPassword)
+                .peek(User::setNoPassword)
                 .toList();
     }
 

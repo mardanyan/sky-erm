@@ -7,10 +7,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class UserTest {
 
     @Test
-    void updateNoPassword() {
+    void setNoPassword() {
         User user = new User();
         user.setPassword("password");
-        user.updateNoPassword();
+        user.setNoPassword();
         assertThat(user.getPassword()).isEqualTo(User.NO_PASSWORD);
     }
 

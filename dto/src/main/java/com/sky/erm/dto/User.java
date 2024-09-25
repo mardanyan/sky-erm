@@ -27,7 +27,7 @@ public class User {
     /**
      * Set password to {@link #NO_PASSWORD} to avoid exposing real password.
      */
-    public void updateNoPassword() {
+    public void setNoPassword() {
         password = NO_PASSWORD;
     }
 

@@ -29,7 +29,7 @@ services:
 #           should be secrets
             - db_password=mysecretpassword
             - jwt_secret=o4OdCNjd8mmDN2+/nfHdIB2ZWta80foXqDx2rouL4nw=
-#            - exception_handler_message_enabled=false
+            - exception_handler_message_enabled=false
         expose:
             - 8080
         ports:

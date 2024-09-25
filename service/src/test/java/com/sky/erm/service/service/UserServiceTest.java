@@ -113,10 +113,11 @@ class UserServiceTest {
         transactionTemplate = new TransactionTemplate(transactionManager);
         User user = userService.addUser(User.builder().email("email").name("name").password("password").build());
 
-        CountDownLatch latchDeleteWait = new CountDownLatch(1);
+        CountDownLatch latchWait = new CountDownLatch(2);
 
         doAnswer(invocation -> {
-            latchDeleteWait.countDown();
+            latchWait.countDown();
+            awaitLatch(latchWait);
             return invocation.callRealMethod();
         }).when(passwordEncoder).encode(anyString());
 
@@ -128,7 +129,8 @@ class UserServiceTest {
 
         // delete user in another transaction
         final CompletableFuture<Void> deleteTx = CompletableFuture.runAsync(() -> {
-            awaitLatch(latchDeleteWait);
+            latchWait.countDown();
+            awaitLatch(latchWait);
             userService.deleteUser(user.getId());
         });
 
